@@ -1,5 +1,6 @@
 'use server';
 
+import nodemailer from 'nodemailer';
 import { validateBrief, type Brief, type BriefErrors } from '@/lib/brief';
 
 export type SubmitResult = { ok: true } | { ok: false; errors?: BriefErrors; server?: true };
@@ -8,7 +9,7 @@ const clip = (value: unknown, max: number) => (typeof value === 'string' ? value
 
 /**
  * Receives a quote request from the homepage form or the contact wizard and emails it
- * through Resend (https://resend.com). Configure RESEND_API_KEY and CONTACT_TO_EMAIL.
+ * over SMTP. Configure SMTP_HOST, SMTP_USER, SMTP_PASS and CONTACT_TO_EMAIL (see .env.example).
  */
 export async function submitBrief(input: Brief): Promise<SubmitResult> {
   const brief: Brief = {
@@ -32,15 +33,14 @@ export async function submitBrief(input: Brief): Promise<SubmitResult> {
   const errors = validateBrief(brief);
   if (Object.keys(errors).length) return { ok: false, errors };
 
-  const apiKey = process.env.RESEND_API_KEY;
-  const to = process.env.CONTACT_TO_EMAIL;
+  const { SMTP_HOST, SMTP_PORT, SMTP_SECURE, SMTP_USER, SMTP_PASS, CONTACT_TO_EMAIL: to, CONTACT_FROM_EMAIL } = process.env;
 
-  if (!apiKey || !to) {
+  if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS || !to) {
     if (process.env.NODE_ENV !== 'production') {
       console.info('[brief] Email is not configured; brief received:', brief);
       return { ok: true };
     }
-    console.error('[brief] RESEND_API_KEY or CONTACT_TO_EMAIL is not set — the brief was not delivered.');
+    console.error('[brief] SMTP_HOST, SMTP_USER, SMTP_PASS or CONTACT_TO_EMAIL is not set — the brief was not delivered.');
     return { ok: false, server: true };
   }
 
@@ -59,25 +59,26 @@ export async function submitBrief(input: Brief): Promise<SubmitResult> {
   const lines = fields.filter(([, value]) => value).map(([label, value]) => `${label}: ${value}`);
   lines.push('', brief.message || '(no message)');
 
+  const port = Number(SMTP_PORT) || 465;
+  const transporter = nodemailer.createTransport({
+    host: SMTP_HOST,
+    port,
+    // 465 uses TLS from the start; 587/25 upgrade with STARTTLS. Override with SMTP_SECURE=true|false.
+    secure: SMTP_SECURE ? SMTP_SECURE === 'true' : port === 465,
+    auth: { user: SMTP_USER, pass: SMTP_PASS },
+  });
+
   try {
-    const res = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        from: process.env.CONTACT_FROM_EMAIL || 'RD Group Website <onboarding@resend.dev>',
-        to: to.split(',').map((s) => s.trim()),
-        reply_to: brief.email,
-        subject: `New brief: ${brief.name} — ${brief.services.join(', ')}`,
-        text: lines.join('\n'),
-      }),
+    await transporter.sendMail({
+      from: CONTACT_FROM_EMAIL || `RD Group Website <${SMTP_USER}>`,
+      to: to.split(',').map((s) => s.trim()),
+      replyTo: brief.email,
+      subject: `New brief: ${brief.name} — ${brief.services.join(', ')}`,
+      text: lines.join('\n'),
     });
-    if (!res.ok) {
-      console.error('[brief] Resend responded with', res.status, await res.text());
-      return { ok: false, server: true };
-    }
     return { ok: true };
   } catch (err) {
-    console.error('[brief] Sending failed', err);
+    console.error('[brief] SMTP sending failed', err);
     return { ok: false, server: true };
   }
 }
