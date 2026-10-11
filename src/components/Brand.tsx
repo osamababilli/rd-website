@@ -1,7 +1,5 @@
-/**
- * The RD badge is a stand-in drawn in the design. Swap it for the supplied logo file;
- * keep the same sizes (48 header, 38 sticky header).
- */
+import Image from 'next/image';
+import badge from '@/assets/rd-badge.png';
 
 /** Gold gradient referenced by the badge, the quote mark and other SVGs (url(#rdg)). Render once. */
 export function GoldDefs() {
@@ -19,17 +17,9 @@ export function GoldDefs() {
   );
 }
 
-export function Badge({ className = 'badge' }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 120 120" aria-hidden="true">
-      <circle cx="60" cy="60" r="59" className="b-bg" />
-      <circle cx="60" cy="60" r="55" className="b-ring" />
-      <circle cx="60" cy="60" r="50" className="b-ring2" />
-      <text x="60" y="76" className="b-txt">
-        RD
-      </text>
-    </svg>
-  );
+/** The round RD Group badge from the official logo (decorative: links around it carry the label). */
+export function Badge({ className = 'badge', priority = false }: { className?: string; priority?: boolean }) {
+  return <Image className={className} src={badge} alt="" aria-hidden="true" sizes="(max-width: 960px) 180px, 230px" priority={priority} />;
 }
 
 export function QuoteMark() {

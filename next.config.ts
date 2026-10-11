@@ -5,9 +5,9 @@ const nextConfig: NextConfig = {
   partialPrefetching: true,
   poweredByHeader: false,
   turbopack: { root: process.cwd() },
-  // Browsers request /favicon.ico on their own; serve the SVG icon instead.
+  // Browsers request /favicon.ico on their own; serve the PNG icon instead.
   async redirects() {
-    return [{ source: '/favicon.ico', destination: '/icon.svg', permanent: true }];
+    return [{ source: '/favicon.ico', destination: '/icon.png', permanent: false }];
   },
 };
 

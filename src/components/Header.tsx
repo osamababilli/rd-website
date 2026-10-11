@@ -71,7 +71,7 @@ export function Header({ locale, items, quote, labels }: Props) {
     <header className={small ? 'hdr is-small' : 'hdr'}>
       <div className="wrap hdr-in">
         <Link className="logo" href={`/${locale}`} aria-label={`RD Group — ${labels.home}`} onClick={close}>
-          <Badge />
+          <Badge priority />
           <span className="wm">RD GROUP</span>
         </Link>
 

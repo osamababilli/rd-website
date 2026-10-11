@@ -46,7 +46,7 @@ npm start          # تشغيل نسخة الإنتاج
 - **بيانات التواصل والروابط الاجتماعية:** `src/config/site.ts`.
 - **المشاريع والأرقام وأدوات كل خدمة:** `src/content/data.ts`.
 - **الألوان والمسافات:** أعلى `src/app/globals.css`.
-- **الشعار:** شارة RD في `src/components/Brand.tsx` و`src/app/icon.svg` بديل مؤقت؛ ضع ملف الشعار الحقيقي مكانها.
+- **الشعار:** الشارة الدائرية في `src/assets/rd-badge.png` (مقصوصة من الشعار الأصلي)، والشعار الكامل بنسختيه في `public/brand/`. أيقونة المتصفح `src/app/icon.png` وصورة المشاركة `src/app/opengraph-image.png` مولّدتان منه.
 
 ### إضافة دراسة حالة
 
