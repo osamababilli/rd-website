@@ -1,36 +1,75 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# موقع RD Group
 
-## Getting Started
+موقع وكالة RD Group مبني من تصميم «RD Group — Website»: ثلاث لغات (العربية RTL، الإنجليزية، التركية)، وضع داكن وفاتح، و7 صفحات.
 
-First, run the development server:
+## التشغيل
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev        # http://localhost:3000
+npm run build      # بناء نسخة الإنتاج
+npm start          # تشغيل نسخة الإنتاج
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+انسخ `.env.example` إلى `.env.local` واملأ القيم قبل النشر.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## التقنيات
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| الجزء | التقنية |
+| --- | --- |
+| الإطار | Next.js 16 (App Router) + React 19 + TypeScript |
+| اللغات | مسار لكل لغة `/ar` `/en` `/tr` عبر `[locale]` و`next/root-params`، وقواميس TypeScript |
+| التنسيق | CSS واحد بمتغيرات (tokens) منقول من التصميم، وخصائص منطقية تدعم RTL |
+| الخطوط | `next/font`: Poppins و DM Sans و Cairo و IBM Plex Sans Arabic (تُستضاف محلياً) |
+| النماذج | Server Action يرسل الطلب بالبريد عبر Resend |
+| SEO | عناوين ووصف لكل لغة، canonical و hreflang، `sitemap.xml` و`robots.txt` |
+| النشر | Vercel (الأسهل)، أو أي خادم Node.js |
 
-## Learn More
+## الصفحات
 
-To learn more about Next.js, take a look at the following resources:
+| الصفحة | المسار |
+| --- | --- |
+| الرئيسية | `/ar` |
+| الخدمات | `/ar/services` |
+| تفاصيل خدمة (المواقع) | `/ar/services/web` |
+| أعمالنا | `/ar/work` |
+| دراسة حالة | `/ar/work/fashion-store` |
+| من نحن | `/ar/about` |
+| تواصل واطلب عرض سعر | `/ar/contact` |
+| الخصوصية / الشروط | `/ar/legal/privacy` · `/ar/legal/terms` |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+زيارة `/` تحوّل الزائر إلى لغته: اللغة المحفوظة في الكوكي، ثم لغة المتصفح، ثم العربية.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## أين أعدّل المحتوى
 
-## Deploy on Vercel
+- **النصوص:** `src/i18n/dictionaries/ar.ts` و`en.ts` و`tr.ts` (TypeScript يمنع نسيان أي نص في أي لغة).
+- **بيانات التواصل والروابط الاجتماعية:** `src/config/site.ts`.
+- **المشاريع والأرقام وأدوات كل خدمة:** `src/content/data.ts`.
+- **الألوان والمسافات:** أعلى `src/app/globals.css`.
+- **الشعار:** شارة RD في `src/components/Brand.tsx` و`src/app/icon.svg` بديل مؤقت؛ ضع ملف الشعار الحقيقي مكانها.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### إضافة دراسة حالة
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. أضف الـ slug إلى `CASE_STUDY_SLUGS` في `src/content/data.ts`.
+2. أضف محتواها تحت `caseStudies` في القواميس الثلاثة.
+3. أضف فئاتها إلى `META` في `src/app/[locale]/work/[slug]/page.tsx`.
+
+بطاقات المشاريع التي ليس لها دراسة حالة تظهر بلا رابط.
+
+## قبل الإطلاق
+
+النصوص بين قوسين مربعين `[...]` أماكن مخصّصة من التصميم ويجب استبدالها:
+
+- الهاتف وواتساب والبريد والعنوان وساعات العمل ورابط الخريطة (`site.ts` والقواميس).
+- أسماء العملاء وشهاداتهم، وشعارات «يثق بنا» (CLIENT 01…06).
+- أرقام الإحصائيات في الرئيسية (`STATS` في `data.ts`: 250+ و120+ و8+ و12+ قيم تجريبية).
+- نتائج دراسة الحالة، وصور وأسماء الفريق، وسنة التأسيس.
+- نص سياسة الخصوصية والشروط (مهم قانونياً لأن الموقع يجمع بيانات عبر النماذج — KVKK/GDPR).
+- روابط حسابات التواصل الاجتماعي (حالياً تشير إلى الصفحات الرئيسية للمنصات).
+
+### إعداد البريد
+
+1. أنشئ حساباً في [Resend](https://resend.com) ووثّق نطاق `rdgrouptr.com`.
+2. ضع `RESEND_API_KEY` و`CONTACT_TO_EMAIL` و`CONTACT_FROM_EMAIL` في متغيرات البيئة.
+
+في وضع التطوير بدون هذه القيم تُطبع الطلبات في الطرفية. في الإنتاج بدونها يظهر للزائر خطأ بدلاً من ضياع الطلب بصمت.
