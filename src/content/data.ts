@@ -41,13 +41,5 @@ export type CaseStudySlug = (typeof CASE_STUDY_SLUGS)[number];
 export const hasCaseStudy = (slug: string): slug is CaseStudySlug =>
   (CASE_STUDY_SLUGS as readonly string[]).includes(slug);
 
-/** Homepage counters. Sample values from the design — replace with real numbers. */
-export const STATS = [
-  { value: 250, suffix: '+' },
-  { value: 120, suffix: '+' },
-  { value: 8, suffix: '+' },
-  { value: 12, suffix: '+' },
-];
-
 export const LEGAL_DOCS = ['privacy', 'terms'] as const;
 export type LegalDoc = (typeof LEGAL_DOCS)[number];

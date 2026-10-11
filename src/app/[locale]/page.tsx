@@ -8,12 +8,12 @@ import { Testimonials } from '@/components/home/Testimonials';
 import { Arrow, Icon, type IconName } from '@/components/Icon';
 import { CtaBand, Faq, Steps } from '@/components/Sections';
 import { WorkGrid } from '@/components/WorkGrid';
-import { mailHref, site, telHref, whatsappHref } from '@/config/site';
-import { PROJECTS, SERVICE_KEYS, STATS, hasCaseStudy } from '@/content/data';
+import { PROJECTS, SERVICE_KEYS, hasCaseStudy } from '@/content/data';
 import { LOCALE_LABELS } from '@/i18n/config';
 import { getDictionary, getLocale } from '@/i18n/get-dictionary';
 import { href, pad2 } from '@/lib/paths';
 import { pageMetadata } from '@/lib/seo';
+import { contactLinks, getSettings } from '@/lib/settings';
 
 export async function generateMetadata(): Promise<Metadata> {
   const [locale, t] = await Promise.all([getLocale(), getDictionary()]);
@@ -29,9 +29,8 @@ const CLIENT_LOGOS: IconName[] = ['logo1', 'logo2', 'logo3', 'logo4', 'logo5', '
 export default async function HomePage() {
   const [locale, t] = await Promise.all([getLocale(), getDictionary()]);
   const contact = href(locale, '/contact');
-  const wa = whatsappHref();
-  const tel = telHref();
-  const mail = mailHref();
+  const settings = await getSettings();
+  const { whatsapp: wa, tel, mail } = contactLinks(settings);
 
   const services = t.services.items.map((s, i) => ({
     key: SERVICE_KEYS[i],
@@ -206,7 +205,7 @@ export default async function HomePage() {
       </section>
 
       {/* STATS */}
-      <Stats label={t.ui.stats} items={STATS.map((s, i) => ({ ...s, label: t.stats[i] }))} />
+      <Stats label={t.ui.stats} items={settings.stats.map((value, i) => ({ value, suffix: '+', label: t.stats[i] }))} />
 
       {/* TESTIMONIALS */}
       <Testimonials head={t.testi} items={t.testi.items} labels={{ prev: t.ui.prev, next: t.ui.next, slide: t.ui.slide }} />
@@ -223,9 +222,9 @@ export default async function HomePage() {
               <p className="sd">{t.form.sub}</p>
             </div>
             <div className="contact-list">
-              <ContactItem icon="whatsapp" label="WhatsApp" value={site.whatsappDisplay} link={wa} external />
-              <ContactItem icon="mail" label={t.form.emailL} value={site.email} link={mail} />
-              <ContactItem icon="phone" label={t.form.phoneL} value={site.phoneDisplay} link={tel} />
+              <ContactItem icon="whatsapp" label="WhatsApp" value={settings.whatsapp} link={wa} external />
+              <ContactItem icon="mail" label={t.form.emailL} value={settings.email} link={mail} />
+              <ContactItem icon="phone" label={t.form.phoneL} value={settings.phone} link={tel} />
             </div>
             <p className="note">
               <Icon name="lock" className="sm" />

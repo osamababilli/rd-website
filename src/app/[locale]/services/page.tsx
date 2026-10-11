@@ -2,11 +2,11 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Arrow, Icon, type IconName } from '@/components/Icon';
 import { CheckList, CtaBand, PageHero, SectionHead } from '@/components/Sections';
-import { whatsappHref } from '@/config/site';
 import { SERVICE_KEYS, SERVICE_PAGE_SLUGS, SERVICE_TOOLS } from '@/content/data';
 import { getDictionary, getLocale } from '@/i18n/get-dictionary';
 import { href, pad2 } from '@/lib/paths';
 import { pageMetadata } from '@/lib/seo';
+import { contactLinks, getSettings } from '@/lib/settings';
 
 export async function generateMetadata(): Promise<Metadata> {
   const [locale, t] = await Promise.all([getLocale(), getDictionary()]);
@@ -19,7 +19,7 @@ export default async function ServicesPage() {
   const [locale, t] = await Promise.all([getLocale(), getDictionary()]);
   const p = t.servicesPage;
   const contact = href(locale, '/contact');
-  const wa = whatsappHref();
+  const wa = contactLinks(await getSettings()).whatsapp;
 
   const items = t.services.items.map((s, i) => {
     const key = SERVICE_KEYS[i];

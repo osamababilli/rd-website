@@ -221,7 +221,6 @@ const tr: Dictionary = {
     caseStudies: 'Vaka çalışmaları',
     svc: 'Hizmetler',
     contact: 'İletişim',
-    addr: '[Ofis adresi, Şehir, Türkiye]',
     rights: '© 2026 RD Group. Tüm hakları saklıdır.',
     privacy: 'Gizlilik politikası',
     terms: 'Koşullar',
@@ -511,7 +510,7 @@ const tr: Dictionary = {
     lead: "Üç kısa adımı yanıtlayın, size detaylı bir teklifle dönelim — ya da bize doğrudan WhatsApp'tan ulaşın.",
     formLabel: 'Teklif talep formu',
     channels: { whatsapp: 'WhatsApp — en hızlısı', phone: 'Telefon', email: 'E-posta', office: 'Ofis' },
-    hours: "Çalışma saatleri: [Günler ve saatler] — WhatsApp mesajlarını çalışma saatlerinde yanıtlıyoruz.",
+    hours: 'Çalışma saatleri: {hours} — WhatsApp mesajlarını çalışma saatlerinde yanıtlıyoruz.',
     wizard: {
       stepsLabel: 'Talep adımları',
       steps: ['Hizmet', 'Detaylar', 'İletişim bilgileri'],
@@ -543,7 +542,6 @@ const tr: Dictionary = {
       kick: 'Ofisimiz',
       title: 'Bizi ziyaret edin ya da online buluşalım',
       mapLabel: 'Ofis konumunu gösteren temsili harita',
-      hours: '[Günler ve saatler]',
       directions: 'Yol tarifi alın',
     },
     faq: {

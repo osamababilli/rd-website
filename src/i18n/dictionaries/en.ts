@@ -221,7 +221,6 @@ const en: Dictionary = {
     caseStudies: 'Case studies',
     svc: 'Services',
     contact: 'Contact',
-    addr: '[Office address, City, Türkiye]',
     rights: '© 2026 RD Group. All rights reserved.',
     privacy: 'Privacy policy',
     terms: 'Terms',
@@ -511,7 +510,7 @@ const en: Dictionary = {
     lead: "Answer three short steps and we'll come back with a detailed quote — or reach us directly on WhatsApp.",
     formLabel: 'Quote request form',
     channels: { whatsapp: 'WhatsApp — fastest', phone: 'Phone', email: 'Email', office: 'Office' },
-    hours: 'Working hours: [Days and hours] — we reply to WhatsApp messages during working hours.',
+    hours: 'Working hours: {hours} — we reply to WhatsApp messages during working hours.',
     wizard: {
       stepsLabel: 'Request steps',
       steps: ['Service', 'Details', 'Contact info'],
@@ -543,7 +542,6 @@ const en: Dictionary = {
       kick: 'Our office',
       title: 'Visit us, or meet us online',
       mapLabel: 'Illustrative map of the office location',
-      hours: '[Days and hours]',
       directions: 'Get directions',
     },
     faq: {

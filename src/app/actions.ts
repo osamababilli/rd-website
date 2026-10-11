@@ -2,14 +2,16 @@
 
 import nodemailer from 'nodemailer';
 import { validateBrief, type Brief, type BriefErrors } from '@/lib/brief';
+import { insertLead } from '@/lib/leads';
 
 export type SubmitResult = { ok: true } | { ok: false; errors?: BriefErrors; server?: true };
 
 const clip = (value: unknown, max: number) => (typeof value === 'string' ? value.trim().slice(0, max) : '');
 
 /**
- * Receives a quote request from the homepage form or the contact wizard and emails it
- * over SMTP. Configure SMTP_HOST, SMTP_USER, SMTP_PASS and CONTACT_TO_EMAIL (see .env.example).
+ * Receives a quote request from the homepage form or the contact wizard, saves it to the
+ * dashboard database and, when SMTP is configured, emails it (see .env.example).
+ * The visitor sees an error only if the request could be neither saved nor emailed.
  */
 export async function submitBrief(input: Brief): Promise<SubmitResult> {
   const brief: Brief = {
@@ -33,15 +35,20 @@ export async function submitBrief(input: Brief): Promise<SubmitResult> {
   const errors = validateBrief(brief);
   if (Object.keys(errors).length) return { ok: false, errors };
 
+  let saved = false;
+  try {
+    insertLead(brief);
+    saved = true;
+  } catch (err) {
+    console.error('[brief] Saving to the database failed', err);
+  }
+
   const { SMTP_HOST, SMTP_PORT, SMTP_SECURE, SMTP_USER, SMTP_PASS, CONTACT_TO_EMAIL: to, CONTACT_FROM_EMAIL } = process.env;
 
   if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS || !to) {
-    if (process.env.NODE_ENV !== 'production') {
-      console.info('[brief] Email is not configured; brief received:', brief);
-      return { ok: true };
-    }
-    console.error('[brief] SMTP_HOST, SMTP_USER, SMTP_PASS or CONTACT_TO_EMAIL is not set — the brief was not delivered.');
-    return { ok: false, server: true };
+    if (!saved) return { ok: false, server: true };
+    if (process.env.NODE_ENV === 'production') console.warn('[brief] SMTP is not configured — the brief is only in the dashboard.');
+    return { ok: true };
   }
 
   const fields: [string, string | undefined][] = [
@@ -79,6 +86,6 @@ export async function submitBrief(input: Brief): Promise<SubmitResult> {
     return { ok: true };
   } catch (err) {
     console.error('[brief] SMTP sending failed', err);
-    return { ok: false, server: true };
+    return saved ? { ok: true } : { ok: false, server: true };
   }
 }

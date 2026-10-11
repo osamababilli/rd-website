@@ -18,6 +18,7 @@ function fromAcceptLanguage(header: string | null): Locale | undefined {
 /** Sends paths without a locale prefix to /{locale}/…: saved choice, then browser language, then Arabic. */
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  if (pathname === '/admin' || pathname.startsWith('/admin/')) return; // dashboard is not localized
   const hasLocale = LOCALES.some((l) => pathname === `/${l}` || pathname.startsWith(`/${l}/`));
   if (hasLocale) return;
 

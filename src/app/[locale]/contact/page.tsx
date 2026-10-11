@@ -4,10 +4,10 @@ import { ContactWizard } from '@/components/contact/ContactWizard';
 import { SocialLinks } from '@/components/Footer';
 import { Arrow, Icon, type IconName } from '@/components/Icon';
 import { Faq, PageHero, SectionHead } from '@/components/Sections';
-import { mailHref, site, telHref, whatsappHref } from '@/config/site';
 import { getDictionary, getLocale } from '@/i18n/get-dictionary';
-import { href } from '@/lib/paths';
+import { fill, href } from '@/lib/paths';
 import { pageMetadata } from '@/lib/seo';
+import { contactLinks, getSettings } from '@/lib/settings';
 
 export async function generateMetadata(): Promise<Metadata> {
   const [locale, t] = await Promise.all([getLocale(), getDictionary()]);
@@ -17,12 +17,14 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function ContactPage() {
   const [locale, t] = await Promise.all([getLocale(), getDictionary()]);
   const p = t.contactPage;
+  const settings = await getSettings();
+  const links = contactLinks(settings);
 
   const channels: { icon: IconName; label: string; value: string; link: string | null; ltr?: boolean; external?: boolean }[] = [
-    { icon: 'whatsapp', label: p.channels.whatsapp, value: site.whatsappDisplay, link: whatsappHref(), ltr: true, external: true },
-    { icon: 'phone', label: p.channels.phone, value: site.phoneDisplay, link: telHref(), ltr: true },
-    { icon: 'mail', label: p.channels.email, value: site.email, link: mailHref(), ltr: true },
-    { icon: 'pin', label: p.channels.office, value: t.footer.addr, link: '#office' },
+    { icon: 'whatsapp', label: p.channels.whatsapp, value: settings.whatsapp, link: links.whatsapp, ltr: true, external: true },
+    { icon: 'phone', label: p.channels.phone, value: settings.phone, link: links.tel, ltr: true },
+    { icon: 'mail', label: p.channels.email, value: settings.email, link: links.mail, ltr: true },
+    { icon: 'pin', label: p.channels.office, value: settings.address[locale], link: '#office' },
   ];
 
   return (
@@ -68,10 +70,10 @@ export default async function ContactPage() {
             </div>
             <div className="hours">
               <Icon name="clock" />
-              <span>{p.hours}</span>
+              <span>{fill(p.hours, { hours: settings.hours[locale] })}</span>
             </div>
             <div style={{ marginTop: 20 }}>
-              <SocialLinks only={['instagram', 'linkedin', 'tiktok']} />
+              <SocialLinks social={settings.social} only={['instagram', 'linkedin', 'tiktok']} />
             </div>
           </aside>
 
@@ -97,10 +99,10 @@ export default async function ContactPage() {
             </div>
             <div className="addr">
               <b>RD Group</b>
-              <span>{t.footer.addr}</span>
-              <small>{p.office.hours}</small>
-              {site.mapsUrl && (
-                <a className="more" href={site.mapsUrl} target="_blank" rel="noopener noreferrer">
+              <span>{settings.address[locale]}</span>
+              <small>{settings.hours[locale]}</small>
+              {links.maps && (
+                <a className="more" href={links.maps} target="_blank" rel="noopener noreferrer">
                   {p.office.directions}
                   <Arrow />
                 </a>

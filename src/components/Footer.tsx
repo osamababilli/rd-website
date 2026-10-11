@@ -1,14 +1,16 @@
 import Link from 'next/link';
-import { mailHref, site, telHref, whatsappHref } from '@/config/site';
 import { CASE_STUDY_SLUGS, SERVICE_KEYS, SERVICE_PAGE_SLUGS } from '@/content/data';
 import type { Dictionary } from '@/i18n/get-dictionary';
 import type { Locale } from '@/i18n/config';
 import { href } from '@/lib/paths';
+import { contactLinks, type SiteSettings } from '@/lib/settings';
 import { Badge } from './Brand';
 import { Icon, type IconName } from './Icon';
 import { LangSwitch } from './LangSwitch';
 
-const SOCIAL: { key: keyof typeof site.social; label: string }[] = [
+type SocialKey = keyof SiteSettings['social'];
+
+const SOCIAL: { key: SocialKey; label: string }[] = [
   { key: 'instagram', label: 'Instagram' },
   { key: 'linkedin', label: 'LinkedIn' },
   { key: 'tiktok', label: 'TikTok' },
@@ -16,11 +18,11 @@ const SOCIAL: { key: keyof typeof site.social; label: string }[] = [
   { key: 'facebook', label: 'Facebook' },
 ];
 
-export function SocialLinks({ only }: { only?: (keyof typeof site.social)[] }) {
+export function SocialLinks({ social, only }: { social: SiteSettings['social']; only?: SocialKey[] }) {
   return (
     <div className="social">
-      {SOCIAL.filter((s) => !only || only.includes(s.key)).map((s) => (
-        <a key={s.key} className="icon-btn" href={site.social[s.key]} aria-label={s.label} target="_blank" rel="noopener noreferrer">
+      {SOCIAL.filter((s) => social[s.key] && (!only || only.includes(s.key))).map((s) => (
+        <a key={s.key} className="icon-btn" href={social[s.key]} aria-label={s.label} target="_blank" rel="noopener noreferrer">
           <Icon name={s.key as IconName} />
         </a>
       ))}
@@ -34,7 +36,7 @@ export function serviceHref(locale: Locale, index: number) {
   return page ? href(locale, `/services/${page}`) : href(locale, `/services#svc-${index + 1}`);
 }
 
-export function Footer({ locale, t }: { locale: Locale; t: Dictionary }) {
+export function Footer({ locale, t, settings }: { locale: Locale; t: Dictionary; settings: SiteSettings }) {
   const quick = [
     { label: t.nav.home, href: href(locale) },
     { label: t.nav.services, href: href(locale, '/services') },
@@ -43,9 +45,7 @@ export function Footer({ locale, t }: { locale: Locale; t: Dictionary }) {
     { label: t.nav.about, href: href(locale, '/about') },
     { label: t.nav.contact, href: href(locale, '/contact') },
   ];
-  const tel = telHref();
-  const wa = whatsappHref();
-  const mail = mailHref();
+  const { tel, whatsapp: wa, mail } = contactLinks(settings);
 
   return (
     <footer className="ft">
@@ -58,7 +58,7 @@ export function Footer({ locale, t }: { locale: Locale; t: Dictionary }) {
             </Link>
             <p>{t.footer.about}</p>
             <span className="tagline gold-text">{t.tagline}</span>
-            <SocialLinks />
+            <SocialLinks social={settings.social} />
           </div>
 
           <nav aria-labelledby="ft-quick">
@@ -88,19 +88,19 @@ export function Footer({ locale, t }: { locale: Locale; t: Dictionary }) {
             <ul className="ft-contact">
               <li>
                 <Icon name="phone" />
-                {tel ? <a href={tel} dir="ltr">{site.phoneDisplay}</a> : <span dir="ltr">{site.phoneDisplay}</span>}
+                {tel ? <a href={tel} dir="ltr">{settings.phone}</a> : <span dir="ltr">{settings.phone}</span>}
               </li>
               <li>
                 <Icon name="chat" />
-                {wa ? <a href={wa} dir="ltr">{site.whatsappDisplay}</a> : <span dir="ltr">{site.whatsappDisplay}</span>}
+                {wa ? <a href={wa} dir="ltr">{settings.whatsapp}</a> : <span dir="ltr">{settings.whatsapp}</span>}
               </li>
               <li>
                 <Icon name="mail" />
-                {mail ? <a href={mail} dir="ltr">{site.email}</a> : <span dir="ltr">{site.email}</span>}
+                {mail ? <a href={mail} dir="ltr">{settings.email}</a> : <span dir="ltr">{settings.email}</span>}
               </li>
               <li>
                 <Icon name="pin" />
-                <span>{t.footer.addr}</span>
+                <span>{settings.address[locale]}</span>
               </li>
             </ul>
           </div>
@@ -119,8 +119,7 @@ export function Footer({ locale, t }: { locale: Locale; t: Dictionary }) {
   );
 }
 
-export function WhatsAppFab({ locale, label }: { locale: Locale; label: string }) {
-  const wa = whatsappHref();
+export function WhatsAppFab({ locale, label, wa }: { locale: Locale; label: string; wa: string | null }) {
   return wa ? (
     <a className="wa" href={wa} aria-label={label} target="_blank" rel="noopener noreferrer">
       <Icon name="whatsapp" />
